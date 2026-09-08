@@ -6,11 +6,7 @@
   <title>AI Video Maker</title>
 
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       font-family: Arial, sans-serif;
@@ -65,10 +61,6 @@
       outline: none;
     }
 
-    textarea:focus {
-      border-color: #7c5cff;
-    }
-
     .row {
       display: flex;
       gap: 10px;
@@ -97,8 +89,24 @@
       cursor: pointer;
     }
 
-    button:hover {
-      opacity: 0.9;
+    button:disabled {
+      opacity: 0.5;
+    }
+
+    #status {
+      text-align: center;
+      color: #aaa;
+      margin-top: 15px;
+    }
+
+    #result {
+      margin-top: 20px;
+    }
+
+    video {
+      width: 100%;
+      border-radius: 14px;
+      margin-top: 10px;
     }
 
     .features {
@@ -119,105 +127,138 @@
       font-size: 27px;
       margin-bottom: 7px;
     }
-
-    #status {
-      text-align: center;
-      color: #aaa;
-      margin-top: 15px;
-      min-height: 20px;
-    }
   </style>
 </head>
 
 <body>
 
-  <div class="app">
+<div class="app">
 
-    <div class="logo">🎬 AI Video Maker</div>
-    <div class="subtitle">Create amazing AI videos from your ideas</div>
+  <div class="logo">🎬 AI Video Maker</div>
+  <div class="subtitle">Create AI videos from your ideas</div>
 
-    <div class="card">
+  <div class="card">
 
-      <label>✍️ Describe your video</label>
+    <label>✍️ Describe your video</label>
 
-      <textarea
-        id="prompt"
-        placeholder="Example: A cute cartoon boy exploring a magical jungle..."
-      ></textarea>
+    <textarea
+      id="prompt"
+      placeholder="Example: A cute cartoon boy exploring a magical jungle..."
+    ></textarea>
 
-      <div class="row">
+    <div class="row">
 
-        <select id="duration">
-          <option value="5">5 Seconds</option>
-          <option value="8">8 Seconds</option>
-          <option value="10">10 Seconds</option>
-        </select>
+      <select id="duration">
+        <option value="5">5 Seconds</option>
+        <option value="8">8 Seconds</option>
+        <option value="10">10 Seconds</option>
+      </select>
 
-        <select id="ratio">
-          <option value="9:16">9:16 Shorts</option>
-          <option value="16:9">16:9 Landscape</option>
-          <option value="1:1">1:1 Square</option>
-        </select>
-
-      </div>
-
-      <button onclick="generateVideo()">
-        ✨ Generate Video
-      </button>
-
-      <div id="status"></div>
+      <select id="ratio">
+        <option value="9:16">9:16 Shorts</option>
+        <option value="16:9">16:9 Landscape</option>
+        <option value="1:1">1:1 Square</option>
+      </select>
 
     </div>
 
-    <div class="features">
+    <button id="generateBtn" onclick="generateVideo()">
+      ✨ Generate Video
+    </button>
 
-      <div class="feature">
-        <div class="icon">✍️</div>
-        <b>Text to Video</b>
-      </div>
+    <div id="status"></div>
+    <div id="result"></div>
 
-      <div class="feature">
-        <div class="icon">🖼️</div>
-        <b>Image to Video</b>
-      </div>
+  </div>
 
-      <div class="feature">
-        <div class="icon">🎨</div>
-        <b>AI Effects</b>
-      </div>
+  <div class="features">
 
-      <div class="feature">
-        <div class="icon">📱</div>
-        <b>Shorts Ready</b>
-      </div>
+    <div class="feature">
+      <div class="icon">✍️</div>
+      <b>Text to Video</b>
+    </div>
 
+    <div class="feature">
+      <div class="icon">🖼️</div>
+      <b>Image to Video</b>
+    </div>
+
+    <div class="feature">
+      <div class="icon">🎨</div>
+      <b>AI Effects</b>
+    </div>
+
+    <div class="feature">
+      <div class="icon">📱</div>
+      <b>Shorts Ready</b>
     </div>
 
   </div>
 
-  <script>
+</div>
 
-    function generateVideo() {
+<script>
 
-      const prompt = document.getElementById("prompt").value.trim();
-      const duration = document.getElementById("duration").value;
-      const ratio = document.getElementById("ratio").value;
-      const status = document.getElementById("status");
+async function generateVideo() {
 
-      if (!prompt) {
-        status.innerText = "⚠️ Pehle video ka prompt likho.";
-        return;
-      }
+  const prompt = document.getElementById("prompt").value.trim();
+  const duration = document.getElementById("duration").value;
+  const ratio = document.getElementById("ratio").value;
 
-      status.innerText =
-        "⏳ Video request ready... Duration: " +
-        duration +
-        "s | Ratio: " +
-        ratio;
+  const status = document.getElementById("status");
+  const result = document.getElementById("result");
+  const button = document.getElementById("generateBtn");
 
+  if (!prompt) {
+    status.innerText = "⚠️ Pehle prompt likho.";
+    return;
+  }
+
+  button.disabled = true;
+  status.innerText = "⏳ AI video request bheji ja rahi hai...";
+  result.innerHTML = "";
+
+  try {
+
+    const response = await fetch("/api/generate", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        prompt: prompt,
+        duration: duration,
+        aspect_ratio: ratio
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || data.message || "API error");
     }
 
-  </script>
+    status.innerText =
+      "✅ Video request create ho gayi!";
+
+    result.innerHTML =
+      "<pre style='white-space:pre-wrap;color:#aaa'>" +
+      JSON.stringify(data, null, 2) +
+      "</pre>";
+
+  } catch (error) {
+
+    status.innerText = "❌ " + error.message;
+
+  } finally {
+
+    button.disabled = false;
+
+  }
+
+}
+
+</script>
 
 </body>
-  </html>
+</html>
