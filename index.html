@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Video Maker</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #0b0b12;
+      color: white;
+      min-height: 100vh;
+    }
+
+    .app {
+      max-width: 500px;
+      margin: auto;
+      padding: 22px 16px 40px;
+    }
+
+    .logo {
+      text-align: center;
+      font-size: 28px;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #aaa;
+      margin-bottom: 25px;
+    }
+
+    .card {
+      background: #171722;
+      border: 1px solid #292938;
+      border-radius: 18px;
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 9px;
+      font-weight: bold;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 130px;
+      resize: vertical;
+      background: #0e0e16;
+      color: white;
+      border: 1px solid #343447;
+      border-radius: 12px;
+      padding: 14px;
+      font-size: 16px;
+      outline: none;
+    }
+
+    textarea:focus {
+      border-color: #7c5cff;
+    }
+
+    .row {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    select {
+      flex: 1;
+      background: #0e0e16;
+      color: white;
+      border: 1px solid #343447;
+      border-radius: 10px;
+      padding: 12px;
+    }
+
+    button {
+      width: 100%;
+      border: none;
+      border-radius: 12px;
+      padding: 15px;
+      margin-top: 16px;
+      background: #7c5cff;
+      color: white;
+      font-size: 17px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    .features {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .feature {
+      background: #171722;
+      border: 1px solid #292938;
+      padding: 18px 10px;
+      border-radius: 15px;
+      text-align: center;
+    }
+
+    .icon {
+      font-size: 27px;
+      margin-bottom: 7px;
+    }
+
+    #status {
+      text-align: center;
+      color: #aaa;
+      margin-top: 15px;
+      min-height: 20px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="app">
+
+    <div class="logo">🎬 AI Video Maker</div>
+    <div class="subtitle">Create amazing AI videos from your ideas</div>
+
+    <div class="card">
+
+      <label>✍️ Describe your video</label>
+
+      <textarea
+        id="prompt"
+        placeholder="Example: A cute cartoon boy exploring a magical jungle..."
+      ></textarea>
+
+      <div class="row">
+
+        <select id="duration">
+          <option value="5">5 Seconds</option>
+          <option value="8">8 Seconds</option>
+          <option value="10">10 Seconds</option>
+        </select>
+
+        <select id="ratio">
+          <option value="9:16">9:16 Shorts</option>
+          <option value="16:9">16:9 Landscape</option>
+          <option value="1:1">1:1 Square</option>
+        </select>
+
+      </div>
+
+      <button onclick="generateVideo()">
+        ✨ Generate Video
+      </button>
+
+      <div id="status"></div>
+
+    </div>
+
+    <div class="features">
+
+      <div class="feature">
+        <div class="icon">✍️</div>
+        <b>Text to Video</b>
+      </div>
+
+      <div class="feature">
+        <div class="icon">🖼️</div>
+        <b>Image to Video</b>
+      </div>
+
+      <div class="feature">
+        <div class="icon">🎨</div>
+        <b>AI Effects</b>
+      </div>
+
+      <div class="feature">
+        <div class="icon">📱</div>
+        <b>Shorts Ready</b>
+      </div>
+
+    </div>
+
+  </div>
+
+  <script>
+
+    function generateVideo() {
+
+      const prompt = document.getElementById("prompt").value.trim();
+      const duration = document.getElementById("duration").value;
+      const ratio = document.getElementById("ratio").value;
+      const status = document.getElementById("status");
+
+      if (!prompt) {
+        status.innerText = "⚠️ Pehle video ka prompt likho.";
+        return;
+      }
+
+      status.innerText =
+        "⏳ Video request ready... Duration: " +
+        duration +
+        "s | Ratio: " +
+        ratio;
+
+    }
+
+  </script>
+
+</body>
+  </html>
