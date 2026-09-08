@@ -407,6 +407,155 @@ async function checkVideoStatus(videoId) {
 
   }
 }
+<<script>
+async function generateVideo() {
+  const prompt = document.getElementById("prompt").value.trim();
+  const duration = document.getElementById("duration").value;
+  const ratio = document.getElementById("ratio").value;
+
+  const status = document.getElementById("status");
+  const result = document.getElementById("result");
+  const button = document.getElementById("generateBtn");
+
+  if (!prompt) {
+    status.innerText = "⚠️ Pehle prompt likho.";
+    return;
+  }
+
+  button.disabled = true;
+  status.innerText = "⏳ Video generate ho rahi hai...";
+  result.innerHTML = "";
+
+  try {
+    const response = await fetch("/api/generate", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        prompt: prompt,
+        duration: duration,
+        aspect_ratio: ratio
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.ErrMsg || data.error || "API error");
+    }
+
+    const videoId =
+      data?.Resp?.video_id ||
+      data?.Resp?.id ||
+      data?.video_id;
+
+    if (!videoId) {
+      throw new Error(
+        data.ErrMsg ||
+        data.message ||
+        "Video ID nahi mila."
+      );
+    }
+
+    status.innerText = "⏳ Video processing ho rahi hai...";
+
+    checkVideoStatus(videoId);
+
+  } catch (error) {
+    status.innerText = "❌ " + error.message;
+    button.disabled = false;
+  }
+}
+
+
+async function checkVideoStatus(videoId) {
+  const status = document.getElementById("status");
+  const result = document.getElementById("result");
+  const button = document.getElementById("generateBtn");
+
+  try {
+    const response = await fetch(
+      "/api/status?video_id=" + encodeURIComponent(videoId)
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        data.ErrMsg ||
+        data.error ||
+        "Status check failed"
+      );
+    }
+
+    const videoData = data?.Resp || data;
+
+    const videoUrl =
+      videoData?.url ||
+      videoData?.video_url;
+
+    const videoStatus =
+      videoData?.status;
+
+    if (videoStatus === 1 && videoUrl) {
+
+      status.innerText = "✅ Video ready!";
+
+      result.innerHTML = `
+        <video
+          src="${videoUrl}"
+          controls
+          playsinline
+          style="
+            width:100%;
+            max-width:600px;
+            border-radius:15px;
+            margin-top:20px;
+          "
+        ></video>
+
+        <br>
+
+        <a
+          href="${videoUrl}"
+          target="_blank"
+          style="
+            display:inline-block;
+            margin-top:15px;
+            padding:12px 20px;
+            background:#ffffff;
+            color:#000000;
+            border-radius:10px;
+            text-decoration:none;
+            font-weight:bold;
+          "
+        >
+          🎬 Open Video
+        </a>
+      `;
+
+      button.disabled = false;
+      return;
+    }
+
+    if (videoStatus === -1) {
+      throw new Error("❌ Video generation failed.");
+    }
+
+    status.innerText = "⏳ Video abhi processing mein hai...";
+
+    setTimeout(() => {
+      checkVideoStatus(videoId);
+    }, 5000);
+
+  } catch (error) {
+
+    status.innerText = "❌ " + error.message;
+    button.disabled = false;
+
+  }
+}
 </script>
 
 </body>
